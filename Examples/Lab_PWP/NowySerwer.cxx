@@ -377,9 +377,24 @@ int ReceivePoint(igtl::Socket * socket, igtl::MessageHeader * header)
       std::cerr << " Radius    : " << std::fixed << pointElement->GetRadius() << std::endl;
       std::cerr << " Owner     : " << pointElement->GetOwner() << std::endl;
       std::cerr << "================================" << std::endl;
+
+	  igtl::Sleep(500);
+	  pos[0] = -pos[0];
+	  pos[1] = -pos[1];
+	  pos[2] = -pos[2];
+
+	  pointElement->SetPosition(pos);
+
+	  igtl::PointMessage::Pointer pointMsg;
+	  pointMsg = igtl::PointMessage::New();
+      pointMsg->SetDeviceName("PointSender");
+
+	  pointMsg->AddPointElement(pointElement);
+	  pointMsg->Pack();
+	  socket->Send(pointMsg->GetPackPointer(), pointMsg->GetPackSize());
       }
     }
-
+  socket->CloseSocket();
   return 1;
 }
 
@@ -387,7 +402,6 @@ int ReceiveTrajectory(igtl::Socket * socket, igtl::MessageHeader::Pointer& heade
 {
 
   std::cerr << "Receiving TRAJECTORY data type." << std::endl;
-
   // Create a message buffer to receive transform data
   igtl::TrajectoryMessage::Pointer trajectoryMsg;
   trajectoryMsg = igtl::TrajectoryMessage::New();
